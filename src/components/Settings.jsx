@@ -608,99 +608,142 @@ const Settings = ({ onWallpaperChange, currentWallpaper, initialSection }) => {
     }
 
     if (activeSection === 'network' && activeSubSection === 'wi-fi') {
+      const mockNetworks = [
+        { name: 'Home Network', signal: 4, secured: true, connected: wifiInfo.connected },
+        { name: 'Office WiFi', signal: 3, secured: true, connected: false },
+        { name: 'Guest Network', signal: 2, secured: false, connected: false },
+      ]
+
       return (
         <div className="settings-content-area">
           <h1>Wi-Fi</h1>
-          <p className="section-description">Manage Wi-Fi connections</p>
+          <p className="section-description">Manage wireless network connections</p>
           
-          <div className="network-status">
-            <div className="network-icon-large">
-              {wifiInfo.connected ? '📶' : '📵'}
-            </div>
-            <div className="network-details">
-              <h2>{wifiInfo.connected ? '✅ Connected' : '❌ Disconnected'}</h2>
-              <p><strong>Connection Type:</strong> {wifiInfo.type === 'wifi' ? 'Wi-Fi network' : wifiInfo.type}</p>
-              {networkInfo.supported ? (
-                <>
-                  <p><strong>Network Speed:</strong> {networkInfo.effectiveType?.toUpperCase()} ({networkInfo.downlink} Mbps)</p>
-                  <p><strong>Latency:</strong> {networkInfo.rtt} ms</p>
-                  <p><strong>Data Saver:</strong> {networkInfo.saveData ? 'Enabled' : 'Disabled'}</p>
-                </>
-              ) : (
-                <p className="info-note">⚠️ Network Information API not fully supported</p>
-              )}
-              <p className="info-note" style={{ marginTop: '12px' }}>
-                📡 Real-time connection status from your system
-              </p>
-            </div>
-          </div>
-
-          <div className="setting-toggle">
-            <div className="toggle-info">
-              <label>Wi-Fi Status</label>
-              <p>{wifiInfo.connected ? 'Currently connected to network' : 'No network connection detected'}</p>
-              <p className="info-note">
-                <strong>Note:</strong> Web browsers cannot control WiFi on/off. 
-                This shows your actual connection status.
-              </p>
-            </div>
-            <input 
-              type="checkbox" 
-              className="toggle-switch" 
-              checked={wifiInfo.connected} 
-              disabled
-              title="WiFi control is managed by your operating system"
-            />
-          </div>
-
-          <div className="setting-toggle">
-            <div className="toggle-info">
-              <label>Metered connection</label>
-              <p>Limit data usage on this network</p>
-              <p className="info-note">Browser's data saver status: {networkInfo.saveData ? 'Active' : 'Inactive'}</p>
-            </div>
-            <input 
-              type="checkbox" 
-              className="toggle-switch" 
-              checked={networkInfo.saveData} 
-              disabled
-              title="Data saver is controlled by browser settings"
-            />
-          </div>
-
-          <div className="available-networks">
-            <h3>Network Information</h3>
-            <div className="network-item active">
-              <span className="network-icon">📶</span>
-              <div className="network-info">
-                <span className="network-name">
-                  {wifiInfo.connected ? 'Active Network Connection' : 'No Connection'}
-                </span>
-                <span className="network-security">
-                  Status: {navigator.onLine ? 'Online' : 'Offline'}
-                </span>
+          <div className="wifi-main-card">
+            <div className="wifi-status-header">
+              <div className="wifi-icon-container">
+                <span className="wifi-icon-big">{wifiInfo.connected ? '📶' : '📵'}</span>
               </div>
-              <span className="network-signal">
-                {wifiInfo.connected ? 'Connected' : 'Disconnected'}
-              </span>
+              <div className="wifi-status-text">
+                <h2>{wifiInfo.connected ? 'Connected' : 'Not connected'}</h2>
+                {wifiInfo.connected && (
+                  <p className="connection-type">
+                    {networkInfo.effectiveType ? networkInfo.effectiveType.toUpperCase() : 'Internet'} 
+                    {networkInfo.downlink && ` • ${networkInfo.downlink} Mbps`}
+                  </p>
+                )}
+              </div>
+              <div className="wifi-toggle-container">
+                <label className="modern-toggle">
+                  <input 
+                    type="checkbox" 
+                    checked={wifiInfo.connected}
+                    disabled
+                    title="WiFi is managed by your operating system"
+                  />
+                  <span className="toggle-slider-modern"></span>
+                </label>
+              </div>
             </div>
-            <p className="info-note" style={{ marginTop: '12px' }}>
-              💡 For full network management, use your operating system's network settings.
-              Web browsers can only read connection status, not modify network settings.
-            </p>
+
+            {wifiInfo.connected && networkInfo.supported && (
+              <div className="connection-stats">
+                <div className="stat-item">
+                  <span className="stat-icon">⚡</span>
+                  <div className="stat-details">
+                    <span className="stat-label">Speed</span>
+                    <span className="stat-value">{networkInfo.downlink} Mbps</span>
+                  </div>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-icon">⏱️</span>
+                  <div className="stat-details">
+                    <span className="stat-label">Latency</span>
+                    <span className="stat-value">{networkInfo.rtt} ms</span>
+                  </div>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-icon">💾</span>
+                  <div className="stat-details">
+                    <span className="stat-label">Data Saver</span>
+                    <span className="stat-value">{networkInfo.saveData ? 'On' : 'Off'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="info-box" style={{ marginTop: '20px' }}>
-            <p><strong>📘 Browser Limitations:</strong></p>
-            <ul>
-              <li>Cannot scan for available WiFi networks</li>
-              <li>Cannot connect/disconnect from networks</li>
-              <li>Cannot modify WiFi passwords or settings</li>
-              <li>Can only read current connection status</li>
-            </ul>
-            <p style={{ marginTop: '8px' }}>
-              Use Windows Settings (Win+I) or your OS network manager for full control.
-            </p>
+          <div className="settings-section">
+            <h3>Available networks</h3>
+            <div className="networks-list">
+              {mockNetworks.map((network, index) => (
+                <div key={index} className={`network-card ${network.connected ? 'connected' : ''}`}>
+                  <div className="network-signal-bars">
+                    {[...Array(4)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className={`signal-bar-small ${i < network.signal ? 'active' : ''}`}
+                      />
+                    ))}
+                  </div>
+                  <div className="network-details-main">
+                    <div className="network-name-row">
+                      <span className="network-title">{network.name}</span>
+                      {network.connected && <span className="connected-label">Connected</span>}
+                    </div>
+                    <div className="network-meta">
+                      {network.secured && <span className="security-badge">🔒 Secured</span>}
+                      {network.connected && <span className="network-status-text">Active</span>}
+                    </div>
+                  </div>
+                  <button className="network-action-btn">
+                    {network.connected ? 'Properties' : 'Connect'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="settings-section">
+            <h3>Wi-Fi settings</h3>
+            
+            <div className="modern-setting-item">
+              <div className="setting-content">
+                <span className="setting-title">Random hardware addresses</span>
+                <span className="setting-description">Use random hardware addresses to make it harder for people to track your location</span>
+              </div>
+              <label className="modern-toggle">
+                <input type="checkbox" defaultChecked disabled />
+                <span className="toggle-slider-modern"></span>
+              </label>
+            </div>
+
+            <div className="modern-setting-item">
+              <div className="setting-content">
+                <span className="setting-title">Metered connection</span>
+                <span className="setting-description">Some apps might work differently to reduce data usage</span>
+              </div>
+              <label className="modern-toggle">
+                <input type="checkbox" checked={networkInfo.saveData} disabled />
+                <span className="toggle-slider-modern"></span>
+              </label>
+            </div>
+
+            <div className="modern-setting-item clickable">
+              <div className="setting-content">
+                <span className="setting-title">Manage known networks</span>
+                <span className="setting-description">View and manage networks you've connected to</span>
+              </div>
+              <span className="arrow-icon">›</span>
+            </div>
+          </div>
+
+          <div className="info-banner">
+            <div className="banner-icon">ℹ️</div>
+            <div className="banner-content">
+              <strong>Browser limitations</strong>
+              <p>Web browsers can only read connection status. To scan networks, connect/disconnect, or change settings, use your operating system's network manager.</p>
+            </div>
           </div>
         </div>
       )

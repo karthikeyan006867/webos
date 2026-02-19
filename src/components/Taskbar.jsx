@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import './Taskbar.css'
+import VolumePanel from './VolumePanel'
+import WiFiPanel from './WiFiPanel'
 
 const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeWindow, onWindowClick, onTaskManagerOpen, onSettingsOpen }) => {
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -7,6 +9,8 @@ const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeW
   const [showTaskbarMenu, setShowTaskbarMenu] = useState(false)
   const [taskbarMenuPos, setTaskbarMenuPos] = useState({ x: 0, y: 0 })
   const [showQuickSettings, setShowQuickSettings] = useState(false)
+  const [showVolumePanel, setShowVolumePanel] = useState(false)
+  const [showWiFiPanel, setShowWiFiPanel] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
@@ -109,17 +113,29 @@ const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeW
         </button>
 
         <div className="system-icons">
-          <button className="system-icon" title="Network" onClick={() => setShowQuickSettings(!showQuickSettings)}>
+          <button className="system-icon" title="Network" onClick={() => {
+            setShowWiFiPanel(!showWiFiPanel)
+            setShowVolumePanel(false)
+            setShowQuickSettings(false)
+          }}>
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
             </svg>
           </button>
-          <button className="system-icon" title="Volume" onClick={() => setShowQuickSettings(!showQuickSettings)}>
+          <button className="system-icon" title="Volume" onClick={() => {
+            setShowVolumePanel(!showVolumePanel)
+            setShowWiFiPanel(false)
+            setShowQuickSettings(false)
+          }}>
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
             </svg>
           </button>
-          <button className="system-icon" title="Battery" onClick={() => setShowQuickSettings(!showQuickSettings)}>
+          <button className="system-icon" title="Battery" onClick={() => {
+            setShowQuickSettings(!showQuickSettings)
+            setShowVolumePanel(false)
+            setShowWiFiPanel(false)
+          }}>
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/>
             </svg>
@@ -166,7 +182,7 @@ const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeW
           </div>
           
           <div className="quick-settings-grid">
-            <button className="quick-tile" onClick={() => { setShowQuickSettings(false); onSettingsOpen && onSettingsOpen('wifi'); }}>
+            <button className="quick-tile" onClick={() => { setShowQuickSettings(false); setShowWiFiPanel(true); }}>
               <div className="tile-icon">📶</div>
               <div className="tile-label">Wi-Fi</div>
             </button>
@@ -174,7 +190,7 @@ const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeW
               <div className="tile-icon">📡</div>
               <div className="tile-label">Bluetooth</div>
             </button>
-            <button className="quick-tile">
+            <button className="quick-tile" onClick={() => { setShowQuickSettings(false); setShowVolumePanel(true); }}>
               <div className="tile-icon">🔊</div>
               <div className="tile-label">Volume</div>
             </button>
@@ -196,6 +212,17 @@ const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeW
             <span>⚙️ All Settings</span>
           </button>
         </div>
+      )}
+
+      {showVolumePanel && (
+        <VolumePanel onClose={() => setShowVolumePanel(false)} />
+      )}
+
+      {showWiFiPanel && (
+        <WiFiPanel 
+          onClose={() => setShowWiFiPanel(false)} 
+          onSettingsOpen={onSettingsOpen}
+        />
       )}
     </div>
   )
