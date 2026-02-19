@@ -1,4 +1,4 @@
-// Device Integration APIs - connects WebOS to real device features
+// Device Integration APIs - connects AuroraOS to real device features
 // Browser-only mode - supreme efficiency, no backend required
 
 export const getDeviceInfo = async () => {
@@ -352,7 +352,7 @@ Many Windows commands are not available in browser environment.
     // Whoami command
     if (baseCmd === 'whoami') {
       return {
-        output: 'WEBOS\\User',
+        output: 'AURORA\\User',
         error: false
       }
     }
@@ -360,7 +360,7 @@ Many Windows commands are not available in browser environment.
     // Hostname command
     if (baseCmd === 'hostname') {
       return {
-        output: 'WEBOS-PC',
+        output: 'AURORA-PC',
         error: false
       }
     }
@@ -368,7 +368,7 @@ Many Windows commands are not available in browser environment.
     // Version command
     if (baseCmd === 'ver') {
       return {
-        output: 'Windows 11 WebOS Edition [Version 11.0.22631]\nBrowser: ' + navigator.userAgent,
+        output: 'AuroraOS [Version 1.0.0]\nBrowser: ' + navigator.userAgent,
         error: false
       }
     }
@@ -382,9 +382,9 @@ Many Windows commands are not available in browser environment.
       const display = getDisplayInfo()
 
       return {
-        output: `Host Name:                 WEBOS-PC
-OS Name:                   Windows 11 WebOS Edition
-OS Version:                11.0.22631
+        output: `Host Name:                 AURORA-PC
+OS Name:                   AuroraOS
+OS Version:                1.0.0
 System Manufacturer:       ${sysInfo.vendor || 'Web Browser'}
 System Type:               x64-based PC
 Processor(s):              ${sysInfo.hardwareConcurrency} processor(s) installed

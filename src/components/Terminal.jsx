@@ -23,7 +23,7 @@ const Terminal = () => {
         content: `Windows PowerShell
 Copyright (C) Microsoft Corporation. All rights reserved.
 
-WebOS Browser Terminal v1.0
+AuroraOS Browser Terminal v1.0
 Platform: ${sysInfo.platform}
 CPU Cores: ${sysInfo.hardwareConcurrency}
 Memory: ${sysInfo.deviceMemory}GB

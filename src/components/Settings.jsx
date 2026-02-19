@@ -367,7 +367,7 @@ const Settings = ({ onWallpaperChange, currentWallpaper, initialSection }) => {
             <h3>Device specifications</h3>
             <div className="info-row">
               <span className="info-label">Device name</span>
-              <span className="info-value">WEBOS-PC</span>
+              <span className="info-value">AURORA-PC</span>
             </div>
             <div className="info-row">
               <span className="info-label">Processor</span>
@@ -391,7 +391,7 @@ const Settings = ({ onWallpaperChange, currentWallpaper, initialSection }) => {
             <h3>Windows specifications</h3>
             <div className="info-row">
               <span className="info-label">Edition</span>
-              <span className="info-value">Windows 11 Pro (WebOS)</span>
+              <span className="info-value">AuroraOS v1.0</span>
             </div>
             <div className="info-row">
               <span className="info-label">Version</span>
