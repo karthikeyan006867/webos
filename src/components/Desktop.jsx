@@ -15,12 +15,120 @@ const Desktop = () => {
   const [windows, setWindows] = useState([])
   const [contextMenu, setContextMenu] = useState(null)
   const [activeWindow, setActiveWindow] = useState(null)
+  const [taskbarVisible, setTaskbarVisible] = useState(true)
+  const [taskbarAutoHide, setTaskbarAutoHide] = useState(() => {
+    return localStorage.getItem('taskbarAutoHide') === 'true'
+  })
   const [wallpaper, setWallpaper] = useState(() => {
     return localStorage.getItem('wallpaper') || 'https://images.unsplash.com/photo-1614850523060-8da1d56ae167?w=1920&h=1080&fit=crop'
   })
   const [wallpaperColor, setWallpaperColor] = useState(() => {
     return localStorage.getItem('wallpaperColor') || '#1e3c72'
   })
+
+  // Gesture and auto-hide management
+  useEffect(() => {
+    let hideTimer = null
+    
+    const handleMouseMove = (e) => {
+      if (!taskbarAutoHide) return
+      
+      const windowHeight = window.innerHeight
+      const mouseY = e.clientY
+      
+      // Show taskbar when mouse is near bottom (within 50px)
+      if (mouseY > windowHeight - 50) {
+        setTaskbarVisible(true)
+        clearTimeout(hideTimer)
+      } else if (mouseY < windowHeight - 100) {
+        // Hide after 3 seconds when mouse moves away
+        clearTimeout(hideTimer)
+        hideTimer = setTimeout(() => {
+          if (!showStartMenu) {
+            setTaskbarVisible(false)
+          }
+        }, 3000)
+      }
+    }
+
+    const handleTouchStart = (e) => {
+      const touchY = e.touches[0].clientY
+      const windowHeight = window.innerHeight
+      
+      if (touchY > windowHeight - 20) {
+        e.preventDefault()
+      }
+    }
+
+    const handleTouchMove = (e) => {
+      const touchY = e.touches[0].clientY
+      const windowHeight = window.innerHeight
+      
+      // Swipe up from bottom to show taskbar
+      if (touchY > windowHeight - 100 && taskbarAutoHide) {
+        setTaskbarVisible(true)
+      }
+    }
+
+    if (taskbarAutoHide) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('touchstart', handleTouchStart, { passive: false })
+      document.addEventListener('touchmove', handleTouchMove, { passive: false })
+    } else {
+      setTaskbarVisible(true)
+    }
+
+    return () => {
+      clearTimeout(hideTimer)
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('touchstart', handleTouchStart)
+      document.removeEventListener('touchmove', handleTouchMove)
+    }
+  }, [taskbarAutoHide, showStartMenu])
+
+  // Save auto-hide preference
+  useEffect(() => {
+    localStorage.setItem('taskbarAutoHide', taskbarAutoHide.toString())
+  }, [taskbarAutoHide])
+
+  // Advanced gesture controls
+  useEffect(() => {
+    let touchStartX = 0
+    let touchStartY = 0
+    let touchCount = 0
+
+    const handleTouchStartGesture = (e) => {
+      touchCount = e.touches.length
+      if (touchCount === 3) {
+        touchStartX = e.touches[0].clientX
+        touchStartY = e.touches[0].clientY
+      }
+    }
+
+    const handleTouchMoveGesture = (e) => {
+      if (touchCount === 3) {
+        const touchX = e.touches[0].clientX
+        const touchY = e.touches[0].clientY
+        const deltaX = touchX - touchStartX
+        const deltaY = touchY - touchStartY
+
+        // Three-finger swipe up to show task manager
+        if (deltaY < -100 && Math.abs(deltaX) < 50) {
+          e.preventDefault()
+          handleTaskManagerOpen()
+          touchCount = 0
+        }
+      }
+    }
+
+    document.addEventListener('touchstart', handleTouchStartGesture, { passive: false })
+    document.addEventListener('touchmove', handleTouchMoveGesture, { passive: false })
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStartGesture)
+      document.removeEventListener('touchmove', handleTouchMoveGesture)
+    }
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('wallpaper', wallpaper)
@@ -198,7 +306,10 @@ const Desktop = () => {
       {showWidgets && <Widgets onClose={() => setShowWidgets(false)} />}
 
       <Taskbar 
-        onStartClick={() => setShowStartMenu(!showStartMenu)}
+        onStartClick={() => {
+          setShowStartMenu(!showStartMenu)
+          if (taskbarAutoHide) setTaskbarVisible(true)
+        }}
         onWidgetsClick={() => setShowWidgets(!showWidgets)}
         onTaskManagerOpen={() => openApp({ name: 'Task Manager', icon: '📊' })}
         onSettingsOpen={(section) => {
@@ -216,6 +327,9 @@ const Desktop = () => {
         windows={windows}
         activeWindow={activeWindow}
         onWindowClick={focusWindow}
+        isVisible={taskbarVisible}
+        autoHide={taskbarAutoHide}
+        onToggleAutoHide={() => setTaskbarAutoHide(!taskbarAutoHide)}
       />
 
       {showStartMenu && (

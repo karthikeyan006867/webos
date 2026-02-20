@@ -4,7 +4,19 @@ import VolumePanel from './VolumePanel'
 import WiFiPanel from './WiFiPanel'
 import { getBatteryInfo, getWiFiInfo } from '../utils/deviceAPI'
 
-const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeWindow, onWindowClick, onTaskManagerOpen, onSettingsOpen }) => {
+const Taskbar = ({ 
+  onStartClick, 
+  onWidgetsClick, 
+  showStartMenu, 
+  windows, 
+  activeWindow, 
+  onWindowClick, 
+  onTaskManagerOpen, 
+  onSettingsOpen,
+  isVisible = true,
+  autoHide = false,
+  onToggleAutoHide
+}) => {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [showTray, setShowTray] = useState(false)
   const [showTaskbarMenu, setShowTaskbarMenu] = useState(false)
@@ -77,7 +89,7 @@ const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeW
   }
 
   return (
-    <div className="taskbar" onContextMenu={handleTaskbarContextMenu} onClick={() => setShowTaskbarMenu(false)}>
+    <div className={`taskbar ${!isVisible ? 'taskbar-hidden' : ''} ${autoHide ? 'taskbar-auto-hide' : ''}`} onContextMenu={handleTaskbarContextMenu} onClick={() => setShowTaskbarMenu(false)}>
       <div className="taskbar-left">
         <button 
           className={`start-button ${showStartMenu ? 'active' : ''}`}
@@ -190,6 +202,10 @@ const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeW
             <span>Task Manager</span>
           </button>
           <div className="menu-separator"></div>
+          <button className="context-menu-item" onClick={() => { setShowTaskbarMenu(false); onToggleAutoHide && onToggleAutoHide(); }}>
+            <span className="menu-icon">{autoHide ? '📌' : '🔽'}</span>
+            <span>{autoHide ? 'Lock the taskbar' : 'Automatically hide the taskbar'}</span>
+          </button>
           <button className="context-menu-item" onClick={() => { setShowTaskbarMenu(false); onSettingsOpen && onSettingsOpen(); }}>
             <span className="menu-icon">⚙️</span>
             <span>Taskbar settings</span>

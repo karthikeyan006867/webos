@@ -3,6 +3,7 @@
   height: 100%;
   position: relative;
   overflow: hidden;
+  background: #000;
 }
 
 .desktop-wallpaper {
@@ -14,7 +15,7 @@
   background-size: cover;
   background-position: center;
   z-index: 0;
-  transition: background-image 0.3s ease;
+  transition: background-image 0.5s ease;
 }
 
 .desktop-icons {
@@ -23,41 +24,53 @@
   left: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   z-index: 1;
 }
 
 .desktop-icon {
-  width: 80px;
+  width: 90px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 10px;
+  gap: 6px;
+  padding: 8px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.15s ease;
   user-select: none;
 }
 
 .desktop-icon:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .desktop-icon:active {
   background: rgba(255, 255, 255, 0.2);
+  transform: scale(0.98);
 }
 
 .icon-image {
-  font-size: 40px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  font-size: 48px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: transform 0.15s ease;
+}
+
+.desktop-icon:hover .icon-image {
+  transform: scale(1.05);
 }
 
 .icon-label {
   color: white;
-  font-size: 12px;
+  font-size: 11px;
   text-align: center;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8),
+               0 2px 8px rgba(0, 0, 0, 0.4);
+  font-weight: 400;
+  padding: 2px 6px;
+  border-radius: 2px;
+  max-width: 100%;
   word-wrap: break-word;
-  width: 100%;
 }

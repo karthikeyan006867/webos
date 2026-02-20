@@ -13,6 +13,31 @@
   padding: 0 8px;
   z-index: 1000;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+}
+
+.taskbar-hidden {
+  transform: translateY(100%);
+}
+
+.taskbar-auto-hide::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: rgba(0, 120, 212, 0.6);
+  border-radius: 2px 2px 0 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.taskbar-auto-hide:hover::after,
+.taskbar-auto-hide.taskbar-hidden::after {
+  opacity: 1;
 }
 
 .taskbar-left,
