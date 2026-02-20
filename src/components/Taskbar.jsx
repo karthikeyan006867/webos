@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import './Taskbar.css'
 import VolumePanel from './VolumePanel'
 import WiFiPanel from './WiFiPanel'
+import { getBatteryInfo, getWiFiInfo } from '../utils/deviceAPI'
 
 const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeWindow, onWindowClick, onTaskManagerOpen, onSettingsOpen }) => {
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -11,10 +12,32 @@ const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeW
   const [showQuickSettings, setShowQuickSettings] = useState(false)
   const [showVolumePanel, setShowVolumePanel] = useState(false)
   const [showWiFiPanel, setShowWiFiPanel] = useState(false)
+  const [brightness, setBrightness] = useState(70)
+  const [volume, setVolume] = useState(() => parseInt(localStorage.getItem('systemVolume') || '50'))
+  const [batteryInfo, setBatteryInfo] = useState({ level: 100, charging: false })
+  const [wifiInfo, setWifiInfo] = useState({ connected: false })
+  const [bluetoothEnabled, setBluetoothEnabled] = useState(false)
+  const [nightLight, setNightLight] = useState(false)
+  const [batterySaver, setBatterySaver] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
-    return () => clearInterval(timer)
+    
+    // Load device info
+    const loadDeviceInfo = async () => {
+      const battery = await getBatteryInfo()
+      const wifi = getWiFiInfo()
+      setBatteryInfo(battery)
+      setWifiInfo(wifi)
+    }
+    
+    loadDeviceInfo()
+    const infoInterval = setInterval(loadDeviceInfo, 5000)
+    
+    return () => {
+      clearInterval(timer)
+      clearInterval(infoInterval)
+    }
   }, [])
 
   const formatTime = (date) => {
@@ -175,42 +198,164 @@ const Taskbar = ({ onStartClick, onWidgetsClick, showStartMenu, windows, activeW
       )}
 
       {showQuickSettings && (
-        <div className="quick-settings-panel">
-          <div className="quick-settings-header">
-            <h3>Quick Settings</h3>
-            <button className="close-panel" onClick={() => setShowQuickSettings(false)}>✕</button>
-          </div>
-          
-          <div className="quick-settings-grid">
-            <button className="quick-tile" onClick={() => { setShowQuickSettings(false); setShowWiFiPanel(true); }}>
-              <div className="tile-icon">📶</div>
-              <div className="tile-label">Wi-Fi</div>
+        <div className="quick-settings-panel-modern">
+          <div className="quick-tiles-grid">
+            <button 
+              className={`modern-quick-tile ${wifiInfo.connected ? 'active' : ''}`}
+              onClick={() => { setShowQuickSettings(false); setShowWiFiPanel(true); }}
+            >
+              <div className="tile-content">
+                <span className="tile-icon-modern">📶</span>
+                <span className="tile-arrow">›</span>
+              </div>
+              <div className="tile-info">
+                <div className="tile-name">Wi-Fi</div>
+                <div className="tile-status">{wifiInfo.connected ? 'Connected' : 'Not connected'}</div>
+              </div>
             </button>
-            <button className="quick-tile" onClick={() => { setShowQuickSettings(false); onSettingsOpen && onSettingsOpen('bluetooth'); }}>
-              <div className="tile-icon">📡</div>
-              <div className="tile-label">Bluetooth</div>
+
+            <button 
+              className={`modern-quick-tile ${bluetoothEnabled ? 'active' : ''}`}
+              onClick={() => { setBluetoothEnabled(!bluetoothEnabled); }}
+            >
+              <div className="tile-content">
+                <span className="tile-icon-modern">📡</span>
+                <span className="tile-arrow">›</span>
+              </div>
+              <div className="tile-info">
+                <div className="tile-name">Bluetooth</div>
+                <div className="tile-status">{bluetoothEnabled ? 'On' : 'Off'}</div>
+              </div>
             </button>
-            <button className="quick-tile" onClick={() => { setShowQuickSettings(false); setShowVolumePanel(true); }}>
-              <div className="tile-icon">🔊</div>
-              <div className="tile-label">Volume</div>
+
+            <button className="modern-quick-tile">
+              <div className="tile-content">
+                <span className="tile-icon-modern">✈️</span>
+              </div>
+              <div className="tile-info">
+                <div className="tile-name">Airplane mode</div>
+              </div>
             </button>
-            <button className="quick-tile" onClick={() => { setShowQuickSettings(false); onSettingsOpen && onSettingsOpen('battery'); }}>
-              <div className="tile-icon">🔋</div>
-              <div className="tile-label">Battery</div>
+
+            <button 
+              className={`modern-quick-tile ${batterySaver ? 'active' : ''}`}
+              onClick={() => setBatterySaver(!batterySaver)}
+            >
+              <div className="tile-content">
+                <span className="tile-icon-modern">🔋</span>
+              </div>
+              <div className="tile-info">
+                <div className="tile-name">Battery saver</div>
+              </div>
             </button>
-            <button className="quick-tile">
-              <div className="tile-icon">☀️</div>
-              <div className="tile-label">Brightness</div>
+
+            <button 
+              className={`modern-quick-tile ${nightLight ? 'active' : ''}`}
+              onClick={() => setNightLight(!nightLight)}
+            >
+              <div className="tile-content">
+                <span className="tile-icon-modern">☀️</span>
+              </div>
+              <div className="tile-info">
+                <div className="tile-name">Night light</div>
+              </div>
             </button>
-            <button className="quick-tile">
-              <div className="tile-icon">✈️</div>
-              <div className="tile-label">Airplane</div>
+
+            <button className="modern-quick-tile">
+              <div className="tile-content">
+                <span className="tile-icon-modern">♿</span>
+                <span className="tile-arrow">›</span>
+              </div>
+              <div className="tile-info">
+                <div className="tile-name">Accessibility</div>
+              </div>
+            </button>
+
+            <button className="modern-quick-tile">
+              <div className="tile-content">
+                <span className="tile-icon-modern">📡</span>
+              </div>
+              <div className="tile-info">
+                <div className="tile-name">Mobile hotspot</div>
+              </div>
+            </button>
+
+            <button className="modern-quick-tile">
+              <div className="tile-content">
+                <span className="tile-icon-modern">📺</span>
+                <span className="tile-arrow">›</span>
+              </div>
+              <div className="tile-info">
+                <div className="tile-name">Cast</div>
+              </div>
+            </button>
+
+            <button className="modern-quick-tile">
+              <div className="tile-content">
+                <span className="tile-icon-modern">🖥️</span>
+                <span className="tile-arrow">›</span>
+              </div>
+              <div className="tile-info">
+                <div className="tile-name">Project</div>
+              </div>
             </button>
           </div>
 
-          <button className="settings-link" onClick={() => { setShowQuickSettings(false); onSettingsOpen && onSettingsOpen(); }}>
-            <span>⚙️ All Settings</span>
-          </button>
+          <div className="sliders-section">
+            <div className="slider-row">
+              <span className="slider-icon">☀️</span>
+              <input 
+                type="range" 
+                min="0" 
+                max="100" 
+                value={brightness}
+                onChange={(e) => setBrightness(parseInt(e.target.value))}
+                className="modern-slider brightness-slider"
+                style={{
+                  background: `linear-gradient(to right, #ff6b6b 0%, #ff6b6b ${brightness}%, #5a5a5a ${brightness}%, #5a5a5a 100%)`
+                }}
+              />
+            </div>
+
+            <div className="slider-row">
+              <span className="slider-icon">🔊</span>
+              <input 
+                type="range" 
+                min="0" 
+                max="100" 
+                value={volume}
+                onChange={(e) => {
+                  const newVol = parseInt(e.target.value)
+                  setVolume(newVol)
+                  localStorage.setItem('systemVolume', newVol.toString())
+                }}
+                className="modern-slider volume-slider"
+                style={{
+                  background: `linear-gradient(to right, #ff6b6b 0%, #ff6b6b ${volume}%, #5a5a5a ${volume}%, #5a5a5a 100%)`
+                }}
+              />
+              <button 
+                className="volume-expand-btn"
+                onClick={() => { setShowQuickSettings(false); setShowVolumePanel(true); }}
+              >
+                <span className="expand-icon">🔊</span>
+                <span className="tile-arrow">›</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="quick-settings-footer">
+            <button className="footer-item">
+              <span className="footer-icon">🔋</span>
+              <span>{Math.round(batteryInfo.level * 100)}%</span>
+            </button>
+            <button className="footer-item" onClick={() => { setShowQuickSettings(false); onSettingsOpen && onSettingsOpen(); }}>
+              <span className="footer-icon">⚙️</span>
+            </button>
+            <button className="footer-item">
+              <span className="footer-icon">🔌</span>
+            </button>
+          </div>
         </div>
       )}
 
